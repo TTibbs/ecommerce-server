@@ -1,5 +1,50 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "Serves up a JSON representation of all the available endpoints of the API"
+  },
+  "GET /api/products": {
+    "description": "Returns an array of all products available in the store"
+  },
+  "POST /api/products": {
+    "description": "Creates a new product and returns the created product object"
+  },
+  "GET /api/products/:product_id": {
+    "description": "Returns a single product by its ID"
+  },
+  "PATCH /api/products/:product_id": {
+    "description": "Updates a product by its ID and returns the updated product object"
+  },
+  "DELETE /api/products/:product_id": {
+    "description": "Deletes a product by its ID and returns a message confirming the deletion"
+  },
+  "GET /api/orders": {
+    "description": "Returns an array of all orders made in the store"
+  },
+  "POST /api/orders": {
+    "description": "Creates a new order and returns the created order object"
+  },
+  "GET /api/orders/:order_id": {
+    "description": "Returns a single order by its ID"
+  },
+  "PATCH /api/orders/:order_id": {
+    "description": "Updates an order by its ID and returns the updated order object"
+  },
+  "DELETE /api/orders/:order_id": {
+    "description": "Deletes an order by its ID and returns a message confirming the deletion"
+  },
+  "GET /api/order_items": {
+    "description": "Returns an array of all order items across all orders"
+  },
+  "POST /api/order_items": {
+    "description": "Creates a new order item and returns the created order item object"
+  },
+  "GET /api/order_items/:order_item_id": {
+    "description": "Returns a single order item by its ID"
+  },
+  "PATCH /api/order_items/:order_item_id": {
+    "description": "Updates an order item by its ID and returns the updated order item object"
+  },
+  "DELETE /api/order_items/:order_item_id": {
+    "description": "Deletes an order item by its ID and returns a message confirming the deletion"
   }
 }
