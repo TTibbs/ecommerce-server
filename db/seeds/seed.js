@@ -69,13 +69,15 @@ const seed = async ({
 
     const insertProductQueryStr = format(
       "INSERT INTO products (name, price, description, stock, category) VALUES %L RETURNING *",
-      productsData.map(({ name, price, description, stock, category }) => [
-        name,
-        price,
-        description,
-        stock,
-        categoriesMap[category],
-      ])
+      productsData.map(({ name, price, description, stock, category }) => {
+        const categoryId = categoriesMap[category];
+        if (!categoryId) {
+          throw new Error(
+            `Category '${category}' not found for product '${name}'.`
+          );
+        }
+        return [name, price, description, stock, categoryId];
+      })
     );
     await db.query(insertProductQueryStr);
 
