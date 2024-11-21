@@ -1,0 +1,73 @@
+module.exports = [
+  {
+    name: "MacBook Pro M4 14in",
+    price: 1599.99,
+    description: "High-performance laptop with 16GB RAM and 256GB SSD.",
+    stock: 50,
+    category: "Electronics",
+  },
+  {
+    name: "Smartphone",
+    price: 699.99,
+    description:
+      "Latest smartphone with amazing features and a powerful camera.",
+    stock: 100,
+    category: "Electronics",
+  },
+  {
+    name: "Gaming Chair",
+    price: 249.99,
+    description: "Ergonomic gaming chair with lumbar support.",
+    stock: 30,
+    category: "Furniture",
+  },
+  {
+    name: "Wireless Mouse",
+    price: 29.99,
+    description: "Lightweight wireless mouse with ergonomic design.",
+    stock: 200,
+    category: "Accessories",
+  },
+  {
+    name: "Bluetooth Headphones",
+    price: 99.99,
+    description: "Noise-cancelling over-ear headphones with Bluetooth 5.0.",
+    stock: 150,
+    category: "Electronics",
+  },
+  {
+    name: "Electric Kettle",
+    price: 49.99,
+    description: "Fast-boiling electric kettle with 1.7L capacity.",
+    stock: 75,
+    category: "Kitchen Appliances",
+  },
+  {
+    name: "Yoga Mat",
+    price: 24.99,
+    description: "Eco-friendly, non-slip yoga mat.",
+    stock: 120,
+    category: "Fitness",
+  },
+  {
+    name: "Running Shoes",
+    price: 119.99,
+    description: "Lightweight and comfortable running shoes.",
+    stock: 80,
+    category: "Footwear",
+  },
+  {
+    name: "Desk Lamp",
+    price: 39.99,
+    description: "LED desk lamp with adjustable brightness.",
+    stock: 60,
+    category: "Home Decor",
+  },
+  {
+    name: "Backpack",
+    price: 59.99,
+    description: "Durable backpack with multiple compartments.",
+    stock: 100,
+    category: "Accessories",
+  },
+];
