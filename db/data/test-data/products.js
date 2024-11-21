@@ -1,8 +1,8 @@
 module.exports = [
   {
-    name: "Laptop",
-    price: 999.99,
-    description: "High-performance laptop with 16GB RAM and 512GB SSD.",
+    name: "MacBook Pro M4 14in",
+    price: 1599.99,
+    description: "High-performance laptop with 16GB RAM and 256GB SSD.",
     stock: 50,
     category: "Electronics",
   },
