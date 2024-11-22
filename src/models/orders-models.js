@@ -6,10 +6,19 @@ exports.selectOrders = () => {
 
 exports.selectOrderById = (order_id) => {
   return db
-    .query("SELECT * FROM orders WHERE id = $1", [order_id])
+    .query(
+      `SELECT 
+         order_id AS "order_id", 
+         user_id AS "user_id", 
+         total, 
+         created_at 
+       FROM orders 
+       WHERE order_id = $1`,
+      [order_id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Order not found" });
+        return Promise.reject({ status: 404, msg: "Order does not exist" });
       }
       return rows[0];
     });
@@ -26,7 +35,7 @@ exports.createOrder = ({ user_id, total }) => {
 
 exports.updateOrder = (order_id, { total }) => {
   return db
-    .query("UPDATE orders SET total = $1 WHERE id = $2 RETURNING *", [
+    .query("UPDATE orders SET total = $1 WHERE order_id = $2 RETURNING *", [
       total,
       order_id,
     ])
@@ -34,7 +43,9 @@ exports.updateOrder = (order_id, { total }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Order not found" });
       }
-      return rows[0];
+      const updatedOrder = rows[0];
+      updatedOrder.total = parseFloat(updatedOrder.total);
+      return updatedOrder;
     });
 };
 
