@@ -82,12 +82,8 @@ const seed = async ({
     await db.query(insertProductQueryStr);
 
     const insertOrdersQueryStr = format(
-      "INSERT INTO orders (user_id, total, created_at) VALUES %L RETURNING *",
-      ordersData.map(({ user_id, total, created_at }) => [
-        user_id,
-        total,
-        created_at || null,
-      ])
+      "INSERT INTO orders (user_id, total) VALUES %L RETURNING *",
+      ordersData.map(({ user_id, total }) => [user_id, total])
     );
     await db.query(insertOrdersQueryStr);
 
@@ -102,16 +98,13 @@ const seed = async ({
     await db.query(insertOrdersItemsQueryStr);
 
     const insertReviewsQueryStr = format(
-      "INSERT INTO reviews (product_id, user_id, rating, review_text, created_at) VALUES %L RETURNING *",
-      reviewsData.map(
-        ({ product_id, user_id, rating, review_text, created_at }) => [
-          product_id,
-          user_id,
-          rating,
-          review_text,
-          created_at || null,
-        ]
-      )
+      "INSERT INTO reviews (product_id, user_id, rating, review_text) VALUES %L RETURNING *",
+      reviewsData.map(({ product_id, user_id, rating, review_text }) => [
+        product_id,
+        user_id,
+        rating,
+        review_text,
+      ])
     );
     await db.query(insertReviewsQueryStr);
     await db.query("COMMIT");
