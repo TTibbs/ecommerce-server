@@ -1,16 +1,15 @@
 const ordersRouter = require("express").Router();
-// const {
-//   getOrders,
-//   getOrderById,
-//   createOrder,
-//   updateOrder,
-//   deleteOrder,
-// } = require("../controllers/orders-controllers");
+const {
+  getOrders,
+  getOrderById,
+  createNewOrder,
+  updateOrderById,
+} = require("../controllers/orders-controllers");
 
-// ordersRouter.get("/", getOrders);
-// ordersRouter.get("/:order_id", getOrderById);
-// ordersRouter.post("/", createOrder);
-// ordersRouter.patch("/:order_id", updateOrder);
-// ordersRouter.delete("/:order_id", deleteOrder);
+ordersRouter.get("/", getOrders);
+ordersRouter.get("/:order_id", getOrderById);
+ordersRouter.post("/", createNewOrder);
+ordersRouter.patch("/:order_id", updateOrderById);
+// ordersRouter.delete("/:order_id", deleteOrderById);
 
 module.exports = ordersRouter;

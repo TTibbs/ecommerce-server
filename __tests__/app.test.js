@@ -98,6 +98,132 @@ describe("GET: /api/products", () => {
   });
 });
 
+describe("GET: /api/orders", () => {
+  test("Should return an array of order objects", async () => {
+    const response = await request(app).get("/api/orders").expect(200);
+    const { orders } = response.body;
+    orders.forEach((order) => {
+      expect(order).toHaveProperty("user_id", expect.any(Number));
+      expect(order).toHaveProperty("total", expect.any(String));
+      expect(order).toHaveProperty("created_at", expect.any(String));
+    });
+  });
+  describe("GET: /api/orders/:order_id", () => {
+    test("Should return an order relative to its ID", async () => {
+      const response = await request(app).get("/api/orders/1").expect(200);
+      const { order } = response.body;
+      expect(order).toHaveProperty("order_id", expect.any(Number));
+      expect(order).toHaveProperty("user_id", expect.any(Number));
+      expect(order).toHaveProperty("total", expect.any(String));
+      expect(order).toHaveProperty("created_at", expect.any(String));
+    });
+    describe("GET ERRORS", () => {
+      describe("GET 400", () => {
+        test("Should return a 400 status and error message if ID is invalid", async () => {
+          const response = await request(app)
+            .get("/api/orders/notvalidid")
+            .expect(400);
+          const { msg } = response.body;
+          expect(msg).toBe("Invalid order ID");
+        });
+      });
+      describe("GET 404", () => {
+        test("Should return a 404 status and error message if ID is invalid", async () => {
+          const response = await request(app)
+            .get("/api/orders/1000")
+            .expect(404);
+          const { msg } = response.body;
+          expect(msg).toBe("Order does not exist");
+        });
+      });
+    });
+  });
+  describe("POST: /api/orders", () => {
+    describe("POST 200", () => {
+      test("Should successfully post a new order", async () => {
+        const orderToAdd = {
+          user_id: 1,
+          total: 420.0,
+        };
+        const response = await request(app)
+          .post("/api/orders")
+          .send(orderToAdd)
+          .expect(201);
+        const { newOrder } = response.body;
+        expect(newOrder).toHaveProperty("user_id", expect.any(Number));
+        expect(newOrder).toHaveProperty("order_id", expect.any(Number));
+        expect(newOrder).toHaveProperty("total", expect.any(String));
+        expect(newOrder).toHaveProperty("created_at", expect.any(String));
+      });
+    });
+    describe("POST 400", () => {
+      test("Should return a 400 status and an error message if the order has missing fields", async () => {
+        const orderToAdd = {
+          user_id: 1,
+        };
+        const response = await request(app)
+          .post("/api/orders")
+          .send(orderToAdd)
+          .expect(400);
+        const { msg } = response.body;
+        expect(msg).toBe("Invalid or missing total. It must be a number.");
+      });
+      test("Should return a 400 status and an error message if the order total has invalid fields", async () => {
+        const orderToAdd = {
+          user_id: 1,
+          total: "420.00",
+        };
+        const response = await request(app)
+          .post("/api/orders")
+          .send(orderToAdd)
+          .expect(400);
+        const { msg } = response.body;
+        expect(msg).toBe("Invalid or missing total. It must be a number.");
+      });
+      test("Should return a 400 status and an error message if the order user id has invalid fields", async () => {
+        const orderToAdd = {
+          user_id: "1",
+          total: 420.0,
+        };
+        const response = await request(app)
+          .post("/api/orders")
+          .send(orderToAdd)
+          .expect(400);
+        const { msg } = response.body;
+        expect(msg).toBe("Invalid or missing user ID. It must be a number.");
+      });
+    });
+  });
+  describe("PATCH: /api/orders/:order_id", () => {
+    test("Should successfully update a order by its ID", async () => {
+      const patchedOrder = {
+        user_id: 1,
+        order_id: 1,
+        total: 42.0,
+      };
+      const response = await request(app)
+        .patch("/api/orders/1")
+        .send(patchedOrder)
+        .expect(200);
+      const { updatedOrder } = response.body;
+      expect(updatedOrder).toHaveProperty("user_id", expect.any(Number));
+      expect(updatedOrder).toHaveProperty("order_id", expect.any(Number));
+      expect(updatedOrder).toHaveProperty("total", expect.any(Number));
+      expect(updatedOrder).toHaveProperty("created_at", expect.any(String));
+    });
+    describe("PATCH 400", () => {
+      test("Should return a 400 status code and error message if product patch has nothing to send", async () => {
+        const response = await request(app)
+          .patch("/api/orders/1")
+          .send()
+          .expect(400);
+        const { msg } = response.body;
+        expect(msg).toBe("No valid updates provided");
+      });
+    });
+  });
+});
+
 describe("GET: /api/reviews", () => {
   test("Should return an array or review object", async () => {
     const response = await request(app).get("/api/reviews").expect(200);
