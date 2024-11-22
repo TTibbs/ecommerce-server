@@ -32,68 +32,87 @@ describe("GET: /api/products", () => {
       expect(products.length).toBeGreaterThan(0);
     });
   });
-});
-
-describe("GET: /api/products/:product_id", () => {
-  describe("Successful GETs", () => {
-    test("Should return an array of products", async () => {
-      const response = await request(app).get("/api/products/1").expect(200);
-      const { product } = response.body;
-      expect(product.name).toBe("MacBook Pro M4 14in");
-      expect(product.price).toBe("1599.99");
-      expect(product.description).toBe(
-        "High-performance laptop with 16GB RAM and 256GB SSD."
-      );
-      expect(product.stock).toBe(50);
-      expect(product.category).toBe(1);
+  describe("GET: /api/products/:product_id", () => {
+    describe("GET: 200", () => {
+      test("Should return the product relative to its ID", async () => {
+        const response = await request(app).get("/api/products/1").expect(200);
+        const { product } = response.body;
+        expect(product.name).toBe("MacBook Pro M4 14in");
+        expect(product.price).toBe("1599.99");
+        expect(product.description).toBe(
+          "High-performance laptop with 16GB RAM and 256GB SSD."
+        );
+        expect(product.stock).toBe(50);
+        expect(product.category).toBe(1);
+      });
     });
-  });
-  describe("Unsuccessful GETs", () => {
-    test("400 status check", async () => {
-      const response = await request(app)
-        .get("/api/products/notanumber")
-        .expect(400);
-      const { msg } = response.body;
-      expect(msg).toBe("Invalid product id");
-    });
-    test("404 status check", async () => {
-      const response = await request(app).get("/api/products/9999").expect(404);
-      const { msg } = response.body;
-      expect(msg).toBe("Product not found");
-    });
-  });
-});
-
-describe("GET: /api/products/:product:id/reviews", () => {
-  describe("Successful GETs", () => {
-    test("Should return an array of review objects relative to product id", async () => {
-      const response = await request(app)
-        .get("/api/products/1/reviews")
-        .expect(200);
-      const { reviews } = response.body;
-      reviews.forEach((review) => {
-        expect(review).toHaveProperty("review_id", expect.any(Number));
-        expect(review).toHaveProperty("product_id", expect.any(Number));
-        expect(review).toHaveProperty("user_id", expect.any(Number));
-        expect(review).toHaveProperty("rating", expect.any(Number));
-        expect(review).toHaveProperty("review_text", expect.any(String));
-        expect(review).toHaveProperty("created_at", expect.any(String));
+    describe("GET ERRORS", () => {
+      test("400 status check", async () => {
+        const response = await request(app)
+          .get("/api/products/notanumber")
+          .expect(400);
+        const { msg } = response.body;
+        expect(msg).toBe("Invalid product id");
+      });
+      test("404 status check", async () => {
+        const response = await request(app)
+          .get("/api/products/9999")
+          .expect(404);
+        const { msg } = response.body;
+        expect(msg).toBe("Product not found");
       });
     });
   });
-  describe("Unsuccessful GETs", () => {
-    test("400 status check", async () => {
-      const response = await request(app)
-        .get("/api/products/notanumber/reviews")
-        .expect(400);
-      const { msg } = response.body;
-      expect(msg).toBe("Invalid product id");
+  describe("GET: /api/products/:product:id/reviews", () => {
+    describe("GET: 200", () => {
+      test("Should return an array of review objects relative to product id", async () => {
+        const response = await request(app)
+          .get("/api/products/1/reviews")
+          .expect(200);
+        const { reviews } = response.body;
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("product_id", expect.any(Number));
+          expect(review).toHaveProperty("user_id", expect.any(Number));
+          expect(review).toHaveProperty("rating", expect.any(Number));
+          expect(review).toHaveProperty("review_text", expect.any(String));
+        });
+      });
+    });
+    describe("GET ERRORS", () => {
+      test("Should return a 400 status and a error message when the ID param is invalid", async () => {
+        const response = await request(app)
+          .get("/api/products/notanumber/reviews")
+          .expect(400);
+        const { msg } = response.body;
+        expect(msg).toBe("Invalid product id");
+      });
+      test("Should return a 404 status and a error message when the ID is non-existent", async () => {
+        const response = await request(app)
+          .get("/api/products/900/reviews")
+          .expect(404);
+        const { msg } = response.body;
+        expect(msg).toBe("Product not found");
+      });
     });
   });
 });
 
-describe("POST REQUESTS - /api/products", () => {
-  describe("POST: 200", () => {
+describe("GET: /api/reviews", () => {
+  test("Should return an array or review object", async () => {
+    const response = await request(app).get("/api/reviews").expect(200);
+    const { reviews } = response.body;
+    reviews.forEach((review) => {
+      expect(review).toHaveProperty("product_id", expect.any(Number));
+      expect(review).toHaveProperty("user_id", expect.any(Number));
+      expect(review).toHaveProperty("rating", expect.any(Number));
+      expect(review).toHaveProperty("review_text", expect.any(String));
+    });
+  });
+});
+
+describe("POST: /api/products", () => {
+  describe("POST: 201", () => {
     test("Should successfully post a new product", async () => {
       const newProduct = {
         name: "Playstation 5 disc edition",
@@ -116,7 +135,7 @@ describe("POST REQUESTS - /api/products", () => {
     });
   });
   describe("POST: 400", () => {
-    test("Should return an error message if the new product has missing values", async () => {
+    test("Should return a 400 status and a error message if the new product has missing values", async () => {
       const incompleteProduct = {
         name: "Bad post",
         stock: 42,
@@ -129,5 +148,151 @@ describe("POST REQUESTS - /api/products", () => {
       const { msg } = response.body;
       expect(msg).toBe("Bad request: Missing required fields");
     });
+  });
+});
+
+describe("POST: /api/products/:product_id/reviews", () => {
+  describe("POST: 201", () => {
+    test("Should successfully post a review to the relative product id", async () => {
+      const productReview = {
+        rating: 5,
+        review_text: "Awesome",
+        user_id: 1,
+      };
+      const response = await request(app)
+        .post("/api/products/1/reviews")
+        .send(productReview)
+        .expect(201);
+      const { newProductReview } = response.body;
+      expect(newProductReview).toHaveProperty("product_id", 1);
+      expect(newProductReview).toHaveProperty("user_id", 1);
+      expect(newProductReview).toHaveProperty("rating", 5);
+      expect(newProductReview).toHaveProperty("review_text", "Awesome");
+      expect(newProductReview).toHaveProperty("created_at", expect.any(String));
+    });
+  });
+  describe("POST ERRORS", () => {
+    test("Should return 400 status and a error message if the new review has missing values", async () => {
+      const productReview = {
+        review_text: "Awesome",
+        user_id: 1,
+      };
+      const response = await request(app)
+        .post("/api/products/1/reviews")
+        .send(productReview)
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Bad request: Missing required fields");
+    });
+    test("Should return 400 if required fields are missing", async () => {
+      const productReview = {
+        review_text: "No rating provided",
+        user_id: 1,
+      };
+      const response = await request(app)
+        .post("/api/products/1/reviews")
+        .send(productReview)
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Bad request: Missing required fields");
+    });
+    test("Should return 404 status and an error message if the new review is posted to non-existant product id", async () => {
+      const productReview = {
+        rating: 5,
+        review_text: "Awesome",
+        user_id: 1,
+      };
+      const response = await request(app)
+        .post("/api/products/1000/reviews")
+        .send(productReview)
+        .expect(404);
+      const { msg } = response.body;
+      expect(msg).toBe("Product not found");
+    });
+  });
+});
+
+describe("PATCH: /api/products/:product_id", () => {
+  describe("PATCH 200", () => {
+    test("Should successfully patch the product with the ID given", async () => {
+      const patchedProduct = {
+        price: 299.99,
+      };
+      const response = await request(app)
+        .patch("/api/products/1")
+        .send(patchedProduct)
+        .expect(200);
+      const { updatedProduct } = response.body;
+      expect(updatedProduct.price).toBe("299.99");
+    });
+    test("Should successfully patch the product with the ID given", async () => {
+      const patchedProduct = {
+        price: 299.99,
+        stock: 50,
+      };
+      const response = await request(app)
+        .patch("/api/products/1")
+        .send(patchedProduct)
+        .expect(200);
+      const { updatedProduct } = response.body;
+      expect(updatedProduct.price).toBe("299.99");
+    });
+  });
+  describe("PATCH 400", () => {
+    test("Should return a 400 status code and error message if product patch has nothing to send", async () => {
+      const response = await request(app)
+        .patch("/api/products/1")
+        .send()
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("No updates provided");
+    });
+    test("Should return a 400 status code and error message if product patch has invalid fields", async () => {
+      const patchedProduct = {
+        invalid_field: 299.99,
+        stock: 50,
+      };
+      const response = await request(app)
+        .patch("/api/products/1")
+        .send(patchedProduct)
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Invalid fields provided");
+    });
+  });
+  describe("PATCH: 404", () => {
+    test("Should return a 404 status code and error message if product is non-existent", async () => {
+      const patchedProduct = {
+        price: 299.99,
+        stock: 50,
+      };
+      const response = await request(app)
+        .patch("/api/products/1000")
+        .send(patchedProduct)
+        .expect(404);
+      const { msg } = response.body;
+      expect(msg).toBe("Product not found");
+    });
+  });
+});
+
+describe("DELETE: /api/products/:product_id", () => {
+  test("Should delete a product by its ID", async () => {
+    const response = await request(app)
+      .delete("/api/products/1")
+      .send()
+      .expect(204);
+  });
+  test("Should return a 400 status code if the product ID is invalid", async () => {
+    const response = await request(app)
+      .delete("/api/products/notvalidid")
+      .send()
+      .expect(400);
+  });
+  test("Should return a 400 status code if the product ID is invalid", async () => {
+    const response = await request(app)
+      .delete("/api/products/100")
+      .send()
+      .expect(404);
   });
 });
