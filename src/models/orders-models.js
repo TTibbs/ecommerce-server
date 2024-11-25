@@ -25,6 +25,19 @@ exports.selectOrderById = (order_id) => {
 };
 
 exports.createOrder = ({ user_id, total }) => {
+  if (!user_id || typeof user_id !== "number" || user_id <= 0) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: user_id must be a positive number.",
+    });
+  }
+  if (!total || typeof total !== "number" || total < 0) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: total must be a non-negative number.",
+    });
+  }
+
   return db
     .query("INSERT INTO orders (user_id, total) VALUES ($1, $2) RETURNING *", [
       user_id,
@@ -34,6 +47,13 @@ exports.createOrder = ({ user_id, total }) => {
 };
 
 exports.updateOrder = (order_id, { total }) => {
+  if (total === undefined || typeof total !== "number" || total < 0) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: total must be a non-negative number.",
+    });
+  }
+
   return db
     .query("UPDATE orders SET total = $1 WHERE order_id = $2 RETURNING *", [
       total,

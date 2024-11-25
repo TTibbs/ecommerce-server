@@ -42,7 +42,7 @@ describe("GET: /api/categories", () => {
           .get("/api/categories/notavalidid")
           .expect(400);
         const { msg } = response.body;
-        expect(msg).toBe("Invalid category ID");
+        expect(msg).toBe("Bad request: Invalid category ID");
       });
       test("Should return a 404 status and error message if the category ID is non-existent", async () => {
         const response = await request(app)
@@ -87,9 +87,9 @@ describe("GET: /api/products", () => {
           .get("/api/products/notanumber")
           .expect(400);
         const { msg } = response.body;
-        expect(msg).toBe("Invalid product id");
+        expect(msg).toBe("Bad request: Invalid product ID");
       });
-      test("Should return a 400 status and error message if the product ID is non-existent", async () => {
+      test("Should return a 404 status and error message if the product ID is non-existent", async () => {
         const response = await request(app)
           .get("/api/products/9999")
           .expect(404);
@@ -99,30 +99,28 @@ describe("GET: /api/products", () => {
     });
   });
   describe("GET: /api/products/:product:id/reviews", () => {
-    describe("GET: 200", () => {
-      test("Should return an array of review objects relative to product id", async () => {
-        const response = await request(app)
-          .get("/api/products/1/reviews")
-          .expect(200);
-        const { reviews } = response.body;
-        reviews.forEach((review) => {
-          expect(review).toHaveProperty("review_id", expect.any(Number));
-          expect(review).toHaveProperty("product_id", expect.any(Number));
-          expect(review).toHaveProperty("user_id", expect.any(Number));
-          expect(review).toHaveProperty("rating", expect.any(Number));
-          expect(review).toHaveProperty("review_text", expect.any(String));
-        });
+    test("Should return an array of review objects relative to product id", async () => {
+      const response = await request(app)
+        .get("/api/products/1/reviews")
+        .expect(200);
+      const { reviews } = response.body;
+      reviews.forEach((review) => {
+        expect(review).toHaveProperty("review_id", expect.any(Number));
+        expect(review).toHaveProperty("product_id", expect.any(Number));
+        expect(review).toHaveProperty("user_id", expect.any(Number));
+        expect(review).toHaveProperty("rating", expect.any(Number));
+        expect(review).toHaveProperty("review_text", expect.any(String));
       });
     });
-    describe("GET ERRORS", () => {
-      test("Should return a 400 status and a error message when the ID param is invalid", async () => {
+    describe("GET 400 & 404", () => {
+      test("Should return a 400 status and a error message when the product ID is invalid", async () => {
         const response = await request(app)
           .get("/api/products/notanumber/reviews")
           .expect(400);
         const { msg } = response.body;
-        expect(msg).toBe("Invalid product id");
+        expect(msg).toBe("Bad request: Invalid product ID");
       });
-      test("Should return a 404 status and a error message when the ID is non-existent", async () => {
+      test("Should return a 404 status and a error message when the product ID is non-existent", async () => {
         const response = await request(app)
           .get("/api/products/900/reviews")
           .expect(404);
@@ -153,14 +151,14 @@ describe("GET: /api/orders", () => {
       expect(order).toHaveProperty("created_at", expect.any(String));
     });
     describe("GET 400 & 404", () => {
-      test("Should return a 400 status and error message if ID is invalid", async () => {
+      test("Should return a 400 status and error message if order ID is invalid", async () => {
         const response = await request(app)
           .get("/api/orders/notvalidid")
           .expect(400);
         const { msg } = response.body;
-        expect(msg).toBe("Invalid order ID");
+        expect(msg).toBe("Bad request: Invalid order ID");
       });
-      test("Should return a 404 status and error message if ID is invalid", async () => {
+      test("Should return a 404 status and error message if order ID is non-existent", async () => {
         const response = await request(app).get("/api/orders/1000").expect(404);
         const { msg } = response.body;
         expect(msg).toBe("Order does not exist");
@@ -196,6 +194,21 @@ describe("POST: /api/categories", () => {
     const { newCategory } = response.body;
     expect(newCategory).toHaveProperty("category_id", expect.any(Number));
     expect(newCategory).toHaveProperty("category_name", "Laptops");
+  });
+  describe("POST 400", () => {
+    test("Should return a 400 status and a error message if the new category has no values", async () => {
+      const response = await request(app).post("/api/categories").expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Bad request: No fields provided in the request body");
+    });
+    test("Should return a 400 status and a error message if the fields aren't correct", async () => {
+      const postedCategory = {
+        incorrect_name: "Fail",
+      };
+      const response = await request(app).post("/api/categories").expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Bad request: No fields provided in the request body");
+    });
   });
 });
 
@@ -268,7 +281,9 @@ describe("POST: /api/orders", () => {
         .send(orderToAdd)
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("Invalid or missing total. It must be a number.");
+      expect(msg).toBe(
+        "Bad request: Invalid or missing total. It must be a non-negative number."
+      );
     });
     test("Should return a 400 status and an error message if the order total has invalid fields", async () => {
       const orderToAdd = {
@@ -280,7 +295,9 @@ describe("POST: /api/orders", () => {
         .send(orderToAdd)
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("Invalid or missing total. It must be a number.");
+      expect(msg).toBe(
+        "Bad request: Invalid or missing total. It must be a non-negative number."
+      );
     });
     test("Should return a 400 status and an error message if the order user id has invalid fields", async () => {
       const orderToAdd = {
@@ -292,7 +309,9 @@ describe("POST: /api/orders", () => {
         .send(orderToAdd)
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("Invalid or missing user ID. It must be a number.");
+      expect(msg).toBe(
+        "Bad request: Invalid or missing user ID. It must be a positive number."
+      );
     });
   });
 });
@@ -393,7 +412,7 @@ describe("PATCH: /api/products/:product_id", () => {
         .send()
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("No updates provided");
+      expect(msg).toBe("Bad request: No updates provided");
     });
     test("Should return a 400 status code and error message if product patch has invalid fields", async () => {
       const patchedProduct = {
@@ -405,7 +424,7 @@ describe("PATCH: /api/products/:product_id", () => {
         .send(patchedProduct)
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("Invalid fields provided");
+      expect(msg).toBe("Bad request: Invalid fields provided");
     });
   });
   describe("PATCH: 404", () => {
@@ -448,7 +467,9 @@ describe("PATCH: /api/orders/:order_id", () => {
         .send()
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("No valid updates provided");
+      expect(msg).toBe(
+        "Bad request: Invalid or missing total. It must be a non-negative number."
+      );
     });
     test("Should return a 404 status code and error message if order is non-existent", async () => {
       const patchedOrder = {
@@ -499,7 +520,7 @@ describe("DELETE: /api/orders/:order_id", () => {
         .delete("/api/orders/notavalidid")
         .expect(400);
       const { msg } = response.body;
-      expect(msg).toBe("Invalid order ID");
+      expect(msg).toBe("Bad request: Invalid order ID");
     });
     test("Should return a 404 status and error message if order ID is non-existent", async () => {
       const response = await request(app)

@@ -22,26 +22,42 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProductById = (req, res, next) => {
   const { product_id } = req.params;
-  if (isNaN(product_id) || Number(product_id) <= 0) {
-    return res.status(400).send({ msg: "Invalid product id" });
+
+  if (!product_id || isNaN(product_id) || Number(product_id) <= 0) {
+    return res.status(400).send({ msg: "Bad request: Invalid product ID" });
   }
+
   selectProductById(product_id)
     .then((product) => {
       res.status(200).send({ product });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.status === 404) {
+        res.status(404).send({ msg: err.msg });
+      } else {
+        next(err);
+      }
+    });
 };
 
 exports.getProductReviewsById = (req, res, next) => {
   const { product_id } = req.params;
-  if (isNaN(product_id) || Number(product_id) <= 0) {
-    return res.status(400).send({ msg: "Invalid product id" });
+
+  if (!product_id || isNaN(product_id) || Number(product_id) <= 0) {
+    return res.status(400).send({ msg: "Bad request: Invalid product ID" });
   }
+
   selectProductReviewsById(product_id)
     .then((reviews) => {
       res.status(200).send({ reviews });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.status === 404) {
+        res.status(404).send({ msg: err.msg });
+      } else {
+        next(err);
+      }
+    });
 };
 
 exports.postProduct = (req, res, next) => {
@@ -57,6 +73,18 @@ exports.postProduct = (req, res, next) => {
     return res
       .status(400)
       .send({ msg: "Bad request: Missing required fields" });
+  }
+
+  if (
+    typeof product_name !== "string" ||
+    typeof price !== "number" ||
+    typeof description !== "string" ||
+    typeof stock !== "number" ||
+    typeof category_id !== "number"
+  ) {
+    return res
+      .status(400)
+      .send({ msg: "Bad request: Invalid data types for fields" });
   }
 
   insertProduct({
@@ -79,13 +107,27 @@ exports.postProduct = (req, res, next) => {
 };
 
 exports.postProductReviewById = (req, res, next) => {
-  const { rating, review_text, user_id } = req.body;
   const { product_id } = req.params;
+  const { rating, review_text, user_id } = req.body;
+
+  if (!product_id || isNaN(product_id) || Number(product_id) <= 0) {
+    return res.status(400).send({ msg: "Bad request: Invalid product ID" });
+  }
 
   if (!rating || !review_text || !user_id) {
     return res
       .status(400)
       .send({ msg: "Bad request: Missing required fields" });
+  }
+
+  if (
+    typeof rating !== "number" ||
+    typeof review_text !== "string" ||
+    typeof user_id !== "number"
+  ) {
+    return res
+      .status(400)
+      .send({ msg: "Bad request: Invalid data types for fields" });
   }
 
   const validateProduct = selectProductById(product_id);
@@ -98,10 +140,9 @@ exports.postProductReviewById = (req, res, next) => {
       res.status(201).send({ newProductReview });
     })
     .catch((err) => {
-      if (err.msg === "Product not found") {
+      if (err.status === 404) {
         res.status(404).send({ msg: err.msg });
       } else {
-        console.error(err);
         next(err);
       }
     });
@@ -111,12 +152,12 @@ exports.patchProductById = (req, res, next) => {
   const { product_id } = req.params;
   const updates = req.body;
 
-  if (isNaN(product_id) || Number(product_id) <= 0) {
-    return res.status(400).send({ msg: "Invalid product id" });
+  if (!product_id || isNaN(product_id) || Number(product_id) <= 0) {
+    return res.status(400).send({ msg: "Bad request: Invalid product ID" });
   }
 
   if (!updates || Object.keys(updates).length === 0) {
-    return res.status(400).send({ msg: "No updates provided" });
+    return res.status(400).send({ msg: "Bad request: No updates provided" });
   }
 
   getValidProductFields()
@@ -126,7 +167,10 @@ exports.patchProductById = (req, res, next) => {
       );
 
       if (invalidFields.length > 0) {
-        return res.status(400).send({ msg: "Invalid fields provided" });
+        return Promise.reject({
+          status: 400,
+          msg: "Bad request: Invalid fields provided",
+        });
       }
 
       return updateProductById(product_id, updates);
@@ -142,11 +186,20 @@ exports.patchProductById = (req, res, next) => {
 
 exports.deleteProductById = (req, res, next) => {
   const { product_id } = req.params;
+
+  if (!product_id || isNaN(product_id) || Number(product_id) <= 0) {
+    return res.status(400).send({ msg: "Bad request: Invalid product ID" });
+  }
+
   selectProductToDelete(product_id)
     .then(() => {
       res.status(204).send();
     })
     .catch((err) => {
-      next(err);
+      if (err.status === 404) {
+        res.status(404).send({ msg: err.msg });
+      } else {
+        next(err);
+      }
     });
 };

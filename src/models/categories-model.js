@@ -18,8 +18,14 @@ exports.selectCategoryById = (category_id) => {
 };
 
 exports.insertCategory = ({ category_name }) => {
-  const query = `INSERT INTO categories (category_name) VALUES ($1) RETURNING *;`;
+  if (!category_name || typeof category_name !== "string") {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: category_name must be provided and be a string",
+    });
+  }
 
+  const query = `INSERT INTO categories (category_name) VALUES ($1) RETURNING *;`;
   const values = [category_name];
 
   return db.query(query, values).then(({ rows }) => {
