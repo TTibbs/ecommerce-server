@@ -222,6 +222,21 @@ describe("GET: /api/orders", () => {
       });
     });
   });
+  describe("DELETE: /api/orders/:order_id", () => {
+    test("Should successfully delete an order by its ID", () => {
+      return request(app).delete("/api/orders/1").expect(204);
+    });
+    test("Should return a 400 status and error message if order ID is invalid", async () => {
+      const response = await request(app).delete("/api/orders/notavalidid").expect(400);
+      const { msg } = response.body
+      expect (msg).toBe("Invalid order ID")
+    });
+    test("Should return a 404 status and error message if order ID is non-existent", async () => {
+      const response = await request(app).delete("/api/orders/9999").expect(404);
+      const { msg } = response.body
+      expect (msg).toBe("Order not found")
+    });
+  });
 });
 
 describe("GET: /api/reviews", () => {

@@ -4,12 +4,13 @@ const {
   getOrderById,
   createNewOrder,
   updateOrderById,
+  deleteOrderById,
 } = require("../controllers/orders-controllers");
 
 ordersRouter.get("/", getOrders);
 ordersRouter.get("/:order_id", getOrderById);
 ordersRouter.post("/", createNewOrder);
 ordersRouter.patch("/:order_id", updateOrderById);
-// ordersRouter.delete("/:order_id", deleteOrderById);
+ordersRouter.delete("/:order_id", deleteOrderById);
 
 module.exports = ordersRouter;

@@ -51,7 +51,7 @@ exports.updateOrder = (order_id, { total }) => {
 
 exports.deleteOrder = (order_id) => {
   return db
-    .query("DELETE FROM orders WHERE id = $1 RETURNING *", [order_id])
+    .query("DELETE FROM orders WHERE order_id = $1 RETURNING *", [order_id])
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Order not found" });
