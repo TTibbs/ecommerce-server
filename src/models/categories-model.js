@@ -17,10 +17,10 @@ exports.selectCategoryById = (category_id) => {
     });
 };
 
-exports.insertCategory = ({ name }) => {
-  const query = `INSERT INTO categories (name) VALUES ($1) RETURNING *;`;
+exports.insertCategory = ({ category_name }) => {
+  const query = `INSERT INTO categories (category_name) VALUES ($1) RETURNING *;`;
 
-  const values = [name];
+  const values = [category_name];
 
   return db.query(query, values).then(({ rows }) => {
     return rows[0];

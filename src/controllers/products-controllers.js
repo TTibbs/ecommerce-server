@@ -45,18 +45,37 @@ exports.getProductReviewsById = (req, res, next) => {
 };
 
 exports.postProduct = (req, res, next) => {
-  const { name, price, description, stock, category } = req.body;
+  const { product_name, price, description, stock, category_id } = req.body;
 
-  if (!name || !price || !description || stock === undefined || !category) {
-    res.status(400).send({ msg: "Bad request: Missing required fields" });
-    return;
+  if (
+    !product_name ||
+    price === undefined ||
+    !description ||
+    stock === undefined ||
+    !category_id
+  ) {
+    return res
+      .status(400)
+      .send({ msg: "Bad request: Missing required fields" });
   }
 
-  insertProduct({ name, price, description, stock, category })
+  insertProduct({
+    product_name,
+    price,
+    description,
+    stock,
+    category_id,
+  })
     .then((newProduct) => {
       res.status(201).send({ product: newProduct });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.status === 400) {
+        res.status(400).send({ msg: err.msg });
+      } else {
+        next(err);
+      }
+    });
 };
 
 exports.postProductReviewById = (req, res, next) => {

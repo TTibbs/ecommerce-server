@@ -16,17 +16,17 @@ const seed = async ({
     await db.query(`
       CREATE TABLE categories (
         category_id SERIAL PRIMARY KEY,
-        name VARCHAR(30) NOT NULL UNIQUE
+        category_name VARCHAR(30) NOT NULL UNIQUE
       );
     `);
     await db.query(`
       CREATE TABLE products (
         product_id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
+        product_name VARCHAR(100) NOT NULL,
         price NUMERIC(10, 2) NOT NULL,
         description TEXT,
-        stock INT NOT NULL CHECK (stock >= 0),
-        category INT NOT NULL REFERENCES categories(category_id) ON DELETE CASCADE
+        stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
+        category INT REFERENCES categories(category_id) ON DELETE SET NULL
       );
     `);
     await db.query(`
@@ -57,27 +57,29 @@ const seed = async ({
     `);
 
     const insertCategoryQueryStr = format(
-      "INSERT INTO categories (name) VALUES %L RETURNING *",
-      categoriesData.map(({ name }) => [name])
+      "INSERT INTO categories (category_name) VALUES %L RETURNING *",
+      categoriesData.map(({ category_name }) => [category_name])
     );
     const categoriesResult = await db.query(insertCategoryQueryStr);
 
     const categoriesMap = {};
-    categoriesResult.rows.forEach(({ category_id, name }) => {
-      categoriesMap[name] = category_id;
+    categoriesResult.rows.forEach(({ category_id, category_name }) => {
+      categoriesMap[category_name] = category_id;
     });
 
     const insertProductQueryStr = format(
-      "INSERT INTO products (name, price, description, stock, category) VALUES %L RETURNING *",
-      productsData.map(({ name, price, description, stock, category }) => {
-        const categoryId = categoriesMap[category];
-        if (!categoryId) {
-          throw new Error(
-            `Category '${category}' not found for product '${name}'.`
-          );
+      "INSERT INTO products (product_name, price, description, stock, category) VALUES %L RETURNING *",
+      productsData.map(
+        ({ product_name, price, description, stock, category_name }) => {
+          const categoryId = categoriesMap[category_name];
+          if (!categoryId) {
+            throw new Error(
+              `Category '${category_name}' not found for product '${product_name}'. Ensure all products reference valid categories.`
+            );
+          }
+          return [product_name, price, description, stock, categoryId];
         }
-        return [name, price, description, stock, categoryId];
-      })
+      )
     );
     await db.query(insertProductQueryStr);
 
