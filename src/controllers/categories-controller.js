@@ -29,14 +29,14 @@ exports.getCategoryById = (req, res, next) => {
 };
 
 exports.postNewCategory = (req, res, next) => {
-  const { name } = req.body;
+  const { category_name } = req.body;
 
-  if (!name) {
+  if (!category_name) {
     res.status(400).send({ msg: "Bad request: Missing required fields" });
     return;
   }
 
-  insertCategory({ name })
+  insertCategory({ category_name })
     .then((newCategory) => {
       res.status(201).send({ newCategory });
     })

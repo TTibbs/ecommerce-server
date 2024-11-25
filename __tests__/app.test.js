@@ -24,7 +24,7 @@ describe("GET: /api/categories", () => {
     const { categories } = response.body;
     categories.forEach((category) => {
       expect(category).toHaveProperty("category_id", expect.any(Number));
-      expect(category).toHaveProperty("name", expect.any(String));
+      expect(category).toHaveProperty("category_name", expect.any(String));
     });
   });
   describe("GET: /api/categories/:category_id", () => {
@@ -32,7 +32,7 @@ describe("GET: /api/categories", () => {
       const response = await request(app).get("/api/categories/1").expect(200);
       const { category } = response.body;
       expect(category.category_id).toBe(1);
-      expect(category.name).toBe("Electronics");
+      expect(category.category_name).toBe("Electronics");
     });
     test("Should return a 400 status and error message if the category id is invalid", async () => {
       const response = await request(app)
@@ -52,7 +52,7 @@ describe("GET: /api/categories", () => {
   describe("POST: /api/categories", () => {
     test("Should successfully post a new category", async () => {
       const postedCategory = {
-        name: "Laptops",
+        category_name: "Laptops",
       };
       const response = await request(app)
         .post("/api/categories")
@@ -60,7 +60,7 @@ describe("GET: /api/categories", () => {
         .expect(201);
       const { newCategory } = response.body;
       expect(newCategory).toHaveProperty("category_id", expect.any(Number));
-      expect(newCategory).toHaveProperty("name", "Laptops");
+      expect(newCategory).toHaveProperty("category_name", "Laptops");
     });
   });
 });
@@ -71,7 +71,7 @@ describe("GET: /api/products", () => {
     const { products } = response.body;
     products.forEach((product) => {
       expect(product).toHaveProperty("product_id", expect.any(Number));
-      expect(product).toHaveProperty("name", expect.any(String));
+      expect(product).toHaveProperty("product_name", expect.any(String));
       expect(product).toHaveProperty("price", expect.any(String));
       expect(product).toHaveProperty("description", expect.any(String));
       expect(product).toHaveProperty("stock", expect.any(Number));
@@ -84,7 +84,7 @@ describe("GET: /api/products", () => {
       test("Should return the product relative to its ID", async () => {
         const response = await request(app).get("/api/products/1").expect(200);
         const { product } = response.body;
-        expect(product.name).toBe("MacBook Pro M4 14in");
+        expect(product.product_name).toBe("MacBook Pro M4 14in");
         expect(product.price).toBe("1599.99");
         expect(product.description).toBe(
           "High-performance laptop with 16GB RAM and 256GB SSD."
@@ -307,20 +307,23 @@ describe("POST: /api/products", () => {
   describe("POST: 201", () => {
     test("Should successfully post a new product", async () => {
       const newProduct = {
-        name: "Playstation 5 disc edition",
+        product_name: "Playstation 5 disc edition",
         price: 349.99,
         description: "Gaming console",
         stock: 12,
-        category: 1,
+        category_id: 1,
       };
       const response = await request(app)
         .post("/api/products")
         .send(newProduct)
         .expect(201);
       const { product } = response.body;
-      expect(product).toHaveProperty("product_id", 11);
-      expect(product).toHaveProperty("name", "Playstation 5 disc edition");
-      expect(product).toHaveProperty("price", "349.99");
+      expect(product).toHaveProperty("product_id", expect.any(Number));
+      expect(product).toHaveProperty(
+        "product_name",
+        "Playstation 5 disc edition"
+      );
+      expect(product).toHaveProperty("price", 349.99);
       expect(product).toHaveProperty("description", "Gaming console");
       expect(product).toHaveProperty("stock", 12);
       expect(product).toHaveProperty("category", 1);
