@@ -18,6 +18,53 @@ describe("GET: /api", () => {
   });
 });
 
+describe("GET: /api/categories", () => {
+  test("Should return an array of product categories", async () => {
+    const response = await request(app).get("/api/categories").expect(200);
+    const { categories } = response.body;
+    categories.forEach((category) => {
+      expect(category).toHaveProperty("category_id", expect.any(Number));
+      expect(category).toHaveProperty("name", expect.any(String));
+    });
+  });
+  describe("GET: /api/categories/:category_id", () => {
+    test("Should return a category info by its ID", async () => {
+      const response = await request(app).get("/api/categories/1").expect(200);
+      const { category } = response.body;
+      expect(category.category_id).toBe(1);
+      expect(category.name).toBe("Electronics");
+    });
+    test("Should return a 400 status and error message if the category id is invalid", async () => {
+      const response = await request(app)
+        .get("/api/categories/notavalidid")
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Invalid category ID");
+    });
+    test("Should return a 404 status and error message if the category id is non-existent", async () => {
+      const response = await request(app)
+        .get("/api/categories/9999")
+        .expect(404);
+      const { msg } = response.body;
+      expect(msg).toBe("Category not found");
+    });
+  });
+  describe("POST: /api/categories", () => {
+    test("Should successfully post a new category", async () => {
+      const postedCategory = {
+        name: "Laptops",
+      };
+      const response = await request(app)
+        .post("/api/categories")
+        .send(postedCategory)
+        .expect(201);
+      const { newCategory } = response.body;
+      expect(newCategory).toHaveProperty("category_id", expect.any(Number));
+      expect(newCategory).toHaveProperty("name", "Laptops");
+    });
+  });
+});
+
 describe("GET: /api/products", () => {
   test("Should return an array of products", async () => {
     const response = await request(app).get("/api/products").expect(200);
@@ -227,14 +274,18 @@ describe("GET: /api/orders", () => {
       return request(app).delete("/api/orders/1").expect(204);
     });
     test("Should return a 400 status and error message if order ID is invalid", async () => {
-      const response = await request(app).delete("/api/orders/notavalidid").expect(400);
-      const { msg } = response.body
-      expect (msg).toBe("Invalid order ID")
+      const response = await request(app)
+        .delete("/api/orders/notavalidid")
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Invalid order ID");
     });
     test("Should return a 404 status and error message if order ID is non-existent", async () => {
-      const response = await request(app).delete("/api/orders/9999").expect(404);
-      const { msg } = response.body
-      expect (msg).toBe("Order not found")
+      const response = await request(app)
+        .delete("/api/orders/9999")
+        .expect(404);
+      const { msg } = response.body;
+      expect(msg).toBe("Order not found");
     });
   });
 });
