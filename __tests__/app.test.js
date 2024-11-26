@@ -35,7 +35,7 @@ describe("GET REQUESTS", () => {
           .expect(200);
         const { category } = response.body;
         expect(category.category_id).toBe(1);
-        expect(category.category_name).toBe("Electronics");
+        expect(category.category_name).toBe("Laptops");
       });
       describe("GET 400 & 404", () => {
         test("Should return a 400 status and error message if the category ID is invalid", async () => {
@@ -61,6 +61,7 @@ describe("GET REQUESTS", () => {
       const response = await request(app).get("/api/products").expect(200);
       const { products } = response.body;
       expect(products.length).toBeGreaterThan(0);
+      console.log(products);
       products.forEach((product) => {
         expect(product).toHaveProperty("product_id", expect.any(Number));
         expect(product).toHaveProperty("product_name", expect.any(String));
@@ -68,6 +69,7 @@ describe("GET REQUESTS", () => {
         expect(product).toHaveProperty("description", expect.any(String));
         expect(product).toHaveProperty("stock", expect.any(Number));
         expect(product).toHaveProperty("category", expect.any(Number));
+        expect(product).toHaveProperty("image_url", expect.any(String));
       });
     });
     describe("GET: /api/products/:product_id", () => {
@@ -221,7 +223,7 @@ describe("POST REQUESTS", () => {
   describe("POST: /api/categories", () => {
     test("Should successfully post a new category", async () => {
       const postedCategory = {
-        category_name: "Laptops",
+        category_name: "Game Consoles",
       };
       const response = await request(app)
         .post("/api/categories")
@@ -229,7 +231,7 @@ describe("POST REQUESTS", () => {
         .expect(201);
       const { newCategory } = response.body;
       expect(newCategory).toHaveProperty("category_id", expect.any(Number));
-      expect(newCategory).toHaveProperty("category_name", "Laptops");
+      expect(newCategory).toHaveProperty("category_name", "Game Consoles");
     });
     describe("POST 400", () => {
       test("Should return a 400 status and a error message if the new category has no values", async () => {
@@ -257,6 +259,7 @@ describe("POST REQUESTS", () => {
           description: "Gaming console",
           stock: 12,
           category_id: 1,
+          image_url: "https://example.com/images/macbook-pro-m4.jpg",
         };
         const response = await request(app)
           .post("/api/products")

@@ -87,6 +87,7 @@ exports.insertProduct = async ({
   description,
   stock,
   category_id,
+  image_url,
 }) => {
   const categoryCheckQuery = `SELECT * FROM categories WHERE category_id = $1;`;
   const categoryCheckResult = await db.query(categoryCheckQuery, [category_id]);
@@ -96,11 +97,18 @@ exports.insertProduct = async ({
   }
 
   const productInsertQuery = `
-    INSERT INTO products (product_name, price, description, stock, category)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO products (product_name, price, description, stock, category, image_url)
+    VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING *;
   `;
-  const values = [product_name, price, description, stock, category_id];
+  const values = [
+    product_name,
+    price,
+    description,
+    stock,
+    category_id,
+    image_url,
+  ];
 
   const { rows } = await db.query(productInsertQuery, values);
   const newProduct = rows[0];

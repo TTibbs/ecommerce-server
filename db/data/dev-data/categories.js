@@ -1,11 +1,6 @@
 module.exports = [
-  { name: "Electronics" },
-  { name: "Books" },
-  { name: "Clothing" },
-  { name: "Furniture" },
-  { name: "Accessories" },
-  { name: "Kitchen Appliances" },
-  { name: "Fitness" },
-  { name: "Footwear" },
-  { name: "Home Decor" },
+  { category_name: "Laptops" },
+  { category_name: "Phones" },
+  { category_name: "Tablets" },
+  { category_name: "Accessories" },
 ];

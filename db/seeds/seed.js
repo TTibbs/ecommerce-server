@@ -15,6 +15,8 @@ const seed = async ({
     await db.query(`
       DROP TABLE IF EXISTS reviews, order_items, orders, products, categories, users CASCADE;
     `);
+
+    // Create tables
     await db.query(`
       CREATE TABLE users (
         user_id SERIAL PRIMARY KEY,
@@ -35,7 +37,8 @@ const seed = async ({
         price NUMERIC(10, 2) NOT NULL,
         description TEXT,
         stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
-        category INT REFERENCES categories(category_id) ON DELETE SET NULL
+        category INT REFERENCES categories(category_id) ON DELETE SET NULL,
+        image_url VARCHAR(255)
       );
     `);
     await db.query(`
@@ -65,6 +68,7 @@ const seed = async ({
       );
     `);
 
+    // Insert users
     const insertUsersQueryStr = format(
       "INSERT INTO users (username, email) VALUES %L RETURNING *",
       usersData.map(({ username, email }) => [username, email])
@@ -76,6 +80,7 @@ const seed = async ({
       usersMap[username] = user_id;
     });
 
+    // Insert categories
     const insertCategoryQueryStr = format(
       "INSERT INTO categories (category_name) VALUES %L RETURNING *",
       categoriesData.map(({ category_name }) => [category_name])
@@ -87,22 +92,38 @@ const seed = async ({
       categoriesMap[category_name] = category_id;
     });
 
+    // Insert products
     const insertProductQueryStr = format(
-      "INSERT INTO products (product_name, price, description, stock, category) VALUES %L RETURNING *",
+      "INSERT INTO products (product_name, price, description, stock, category, image_url) VALUES %L RETURNING *",
       productsData.map(
-        ({ product_name, price, description, stock, category_name }) => {
+        ({
+          product_name,
+          price,
+          description,
+          stock,
+          category_name,
+          image_url,
+        }) => {
           const categoryId = categoriesMap[category_name];
           if (!categoryId) {
             throw new Error(
               `Category '${category_name}' not found for product '${product_name}'. Ensure all products reference valid categories.`
             );
           }
-          return [product_name, price, description, stock, categoryId];
+          return [
+            product_name,
+            price,
+            description,
+            stock,
+            categoryId,
+            image_url,
+          ];
         }
       )
     );
     await db.query(insertProductQueryStr);
 
+    // Insert orders
     const preparedOrdersData = ordersData.map(convertTimestampToDate);
     const insertOrdersQueryStr = format(
       "INSERT INTO orders (user_id, total, created_at) VALUES %L RETURNING *",
@@ -119,6 +140,7 @@ const seed = async ({
       ordersMap[order_id] = order_id;
     });
 
+    // Insert order items
     const insertOrdersItemsQueryStr = format(
       "INSERT INTO order_items (order_id, product_id, quantity) VALUES %L RETURNING *",
       ordersItemsData.map(({ order_id, product_id, quantity }) => {
@@ -132,6 +154,7 @@ const seed = async ({
     );
     await db.query(insertOrdersItemsQueryStr);
 
+    // Insert reviews
     const preparedReviewsData = reviewsData.map(convertTimestampToDate);
     const insertReviewsQueryStr = format(
       "INSERT INTO reviews (product_id, user_id, rating, review_text, created_at) VALUES %L RETURNING *",
@@ -148,6 +171,7 @@ const seed = async ({
       )
     );
     await db.query(insertReviewsQueryStr);
+
     await db.query("COMMIT");
   } catch (err) {
     await db.query("ROLLBACK");

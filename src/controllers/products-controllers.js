@@ -68,14 +68,16 @@ exports.getProductReviewsById = (req, res, next) => {
 };
 
 exports.postProduct = (req, res, next) => {
-  const { product_name, price, description, stock, category_id } = req.body;
+  const { product_name, price, description, stock, category_id, image_url } =
+    req.body;
 
   if (
     !product_name ||
     price === undefined ||
     !description ||
     stock === undefined ||
-    !category_id
+    !category_id ||
+    !image_url
   ) {
     return res
       .status(400)
@@ -87,7 +89,8 @@ exports.postProduct = (req, res, next) => {
     typeof price !== "number" ||
     typeof description !== "string" ||
     typeof stock !== "number" ||
-    typeof category_id !== "number"
+    typeof category_id !== "number" ||
+    typeof image_url !== "string"
   ) {
     return res
       .status(400)
@@ -100,6 +103,7 @@ exports.postProduct = (req, res, next) => {
     description,
     stock,
     category_id,
+    image_url,
   })
     .then((newProduct) => {
       res.status(201).send({ product: newProduct });

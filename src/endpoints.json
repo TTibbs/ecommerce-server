@@ -1,50 +1,174 @@
 {
   "GET /api": {
-    "description": "Serves up a JSON representation of all the available endpoints of the API"
+    "description": "Serves up a JSON representation of all the available endpoints of the API",
+    "exampleResponse": {
+      "endpoints": {
+        "GET /api/products": "...",
+        "POST /api/products": "..."
+      }
+    }
   },
   "GET /api/products": {
-    "description": "Returns an array of all products available in the store"
+    "description": "Returns an array of all products available in the store",
+    "exampleResponse": {
+      "products": [
+        {
+          "product_id": 1,
+          "product_name": "MacBook Pro M4 14in",
+          "price": 1599.99,
+          "description": "High-performance laptop with 16GB RAM and 256GB SSD.",
+          "stock": 50,
+          "category": "Laptops",
+          "image_url": "https://example.com/images/macbook-pro-m4.jpg"
+        }
+      ]
+    }
   },
   "POST /api/products": {
-    "description": "Creates a new product and returns the created product object"
+    "description": "Creates a new product and returns the created product object",
+    "exampleResponse": {
+      "product": {
+        "product_id": 17,
+        "product_name": "Dell XPS 13",
+        "price": 1499.99,
+        "description": "Ultra-thin laptop with Intel Core i7 and 512GB SSD.",
+        "stock": 40,
+        "category": "Laptops",
+        "image_url": "https://example.com/images/dell-xps-13.jpg"
+      }
+    }
   },
   "GET /api/products/:product_id": {
-    "description": "Returns a single product by its ID"
+    "description": "Returns a single product by its ID",
+    "exampleResponse": {
+      "product": {
+        "product_id": 1,
+        "product_name": "MacBook Pro M4 14in",
+        "price": 1599.99,
+        "description": "High-performance laptop with 16GB RAM and 256GB SSD.",
+        "stock": 50,
+        "category": "Laptops",
+        "image_url": "https://example.com/images/macbook-pro-m4.jpg"
+      }
+    }
   },
   "PATCH /api/products/:product_id": {
-    "description": "Updates a product by its ID and returns the updated product object"
+    "description": "Updates a product by its ID and returns the updated product object",
+    "exampleResponse": {
+      "updatedProduct": {
+        "product_id": 1,
+        "product_name": "MacBook Pro M4 14in",
+        "price": 1499.99,
+        "description": "Updated description for the MacBook Pro.",
+        "stock": 45,
+        "category": "Laptops",
+        "image_url": "https://example.com/images/macbook-pro-m4.jpg"
+      }
+    }
   },
   "DELETE /api/products/:product_id": {
-    "description": "Deletes a product by its ID and returns a message confirming the deletion"
+    "description": "Deletes a product by its ID and returns a message confirming the deletion",
+    "exampleResponse": {
+      "message": "Product with ID 1 successfully deleted."
+    }
   },
   "GET /api/orders": {
-    "description": "Returns an array of all orders made in the store"
+    "description": "Returns an array of all orders made in the store",
+    "exampleResponse": {
+      "orders": [
+        {
+          "order_id": 1,
+          "user_id": 101,
+          "total": 1599.99,
+          "created_at": "2024-11-01T10:15:30.000Z"
+        }
+      ]
+    }
   },
   "POST /api/orders": {
-    "description": "Creates a new order and returns the created order object"
+    "description": "Creates a new order and returns the created order object",
+    "exampleResponse": {
+      "order": {
+        "order_id": 10,
+        "user_id": 102,
+        "total": 2599.99,
+        "created_at": "2024-11-18T10:00:00.000Z"
+      }
+    }
   },
   "GET /api/orders/:order_id": {
-    "description": "Returns a single order by its ID"
+    "description": "Returns a single order by its ID",
+    "exampleResponse": {
+      "order": {
+        "order_id": 1,
+        "user_id": 101,
+        "total": 1599.99,
+        "created_at": "2024-11-01T10:15:30.000Z"
+      }
+    }
   },
   "PATCH /api/orders/:order_id": {
-    "description": "Updates an order by its ID and returns the updated order object"
+    "description": "Updates an order by its ID and returns the updated order object",
+    "exampleResponse": {
+      "updatedOrder": {
+        "order_id": 1,
+        "user_id": 101,
+        "total": 1499.99,
+        "created_at": "2024-11-01T10:15:30.000Z"
+      }
+    }
   },
   "DELETE /api/orders/:order_id": {
-    "description": "Deletes an order by its ID and returns a message confirming the deletion"
+    "description": "Deletes an order by its ID and returns a message confirming the deletion",
+    "exampleResponse": {
+      "message": "Order with ID 1 successfully deleted."
+    }
   },
-  "GET /api/order_items": {
-    "description": "Returns an array of all order items across all orders"
+  "GET /api/reviews": {
+    "description": "Returns an array of all reviews in the store",
+    "exampleResponse": {
+      "reviews": [
+        {
+          "review_id": 1,
+          "product_id": 1,
+          "user_id": 101,
+          "rating": 5,
+          "review_text": "The MacBook Pro M4 is a beast!",
+          "created_at": "2024-11-01T10:15:30.000Z"
+        }
+      ]
+    }
   },
-  "POST /api/order_items": {
-    "description": "Creates a new order item and returns the created order item object"
+  "GET /api/reviews/:review_id": {
+    "description": "Returns a single review by its ID",
+    "exampleResponse": {
+      "review": {
+        "review_id": 1,
+        "product_id": 1,
+        "user_id": 101,
+        "rating": 5,
+        "review_text": "The MacBook Pro M4 is a beast!",
+        "created_at": "2024-11-01T10:15:30.000Z"
+      }
+    }
   },
-  "GET /api/order_items/:order_item_id": {
-    "description": "Returns a single order item by its ID"
+  "PATCH /api/reviews/:review_id": {
+    "description": "Updates a review by its ID and returns the updated review object",
+    "exampleResponse": {
+      "updatedReview": {
+        "review_id": 1,
+        "product_id": 1,
+        "user_id": 101,
+        "rating": 4,
+        "review_text": "Updated review text for the MacBook Pro.",
+        "created_at": "2024-11-01T10:15:30.000Z"
+      }
+    }
   },
-  "PATCH /api/order_items/:order_item_id": {
-    "description": "Updates an order item by its ID and returns the updated order item object"
-  },
-  "DELETE /api/order_items/:order_item_id": {
-    "description": "Deletes an order item by its ID and returns a message confirming the deletion"
+  "DELETE /api/reviews/:review_id": {
+    "description": "Deletes a review by its ID and returns a message confirming the deletion",
+    "exampleResponse": {
+      "message": "Review with ID 1 successfully deleted."
+    }
   }
 }
