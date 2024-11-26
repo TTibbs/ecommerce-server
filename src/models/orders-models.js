@@ -20,7 +20,9 @@ exports.selectOrderById = (order_id) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Order does not exist" });
       }
-      return rows[0];
+      const order = rows[0];
+      order.total = parseFloat(order.total);
+      return order;
     });
 };
 

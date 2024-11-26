@@ -1,5 +1,6 @@
 const format = require("pg-format");
 const db = require("../connection.js");
+const { convertTimestampToDate } = require("./utils.js");
 
 const seed = async ({
   productsData,
@@ -7,11 +8,19 @@ const seed = async ({
   ordersItemsData,
   categoriesData,
   reviewsData,
+  usersData,
 }) => {
   try {
     await db.query("BEGIN");
     await db.query(`
-      DROP TABLE IF EXISTS reviews, order_items, orders, products, categories CASCADE;
+      DROP TABLE IF EXISTS reviews, order_items, orders, products, categories, users CASCADE;
+    `);
+    await db.query(`
+      CREATE TABLE users (
+        user_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        email VARCHAR(100) NOT NULL UNIQUE
+      );
     `);
     await db.query(`
       CREATE TABLE categories (
@@ -32,7 +41,7 @@ const seed = async ({
     await db.query(`
       CREATE TABLE orders (
         order_id SERIAL PRIMARY KEY,
-        user_id INT NOT NULL,
+        user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
         total NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
         created_at TIMESTAMP DEFAULT NOW()
       );
@@ -49,12 +58,23 @@ const seed = async ({
       CREATE TABLE reviews (
         review_id SERIAL PRIMARY KEY,
         product_id INT NOT NULL REFERENCES products(product_id) ON DELETE CASCADE,
-        user_id INT NOT NULL,
+        user_id INT NOT NULL REFERENCES users(user_id) ON DELETE SET NULL,
         rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-        review_text TEXT,
+        review_text VARCHAR(1000) NOT NULL,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
+
+    const insertUsersQueryStr = format(
+      "INSERT INTO users (username, email) VALUES %L RETURNING *",
+      usersData.map(({ username, email }) => [username, email])
+    );
+    const usersResult = await db.query(insertUsersQueryStr);
+
+    const usersMap = {};
+    usersResult.rows.forEach(({ user_id, username }) => {
+      usersMap[username] = user_id;
+    });
 
     const insertCategoryQueryStr = format(
       "INSERT INTO categories (category_name) VALUES %L RETURNING *",
@@ -83,30 +103,49 @@ const seed = async ({
     );
     await db.query(insertProductQueryStr);
 
+    const preparedOrdersData = ordersData.map(convertTimestampToDate);
     const insertOrdersQueryStr = format(
-      "INSERT INTO orders (user_id, total) VALUES %L RETURNING *",
-      ordersData.map(({ user_id, total }) => [user_id, total])
+      "INSERT INTO orders (user_id, total, created_at) VALUES %L RETURNING *",
+      preparedOrdersData.map(({ user_id, total, created_at }) => [
+        user_id,
+        total,
+        created_at,
+      ])
     );
-    await db.query(insertOrdersQueryStr);
+    const ordersResult = await db.query(insertOrdersQueryStr);
+
+    const ordersMap = {};
+    ordersResult.rows.forEach(({ order_id }) => {
+      ordersMap[order_id] = order_id;
+    });
 
     const insertOrdersItemsQueryStr = format(
       "INSERT INTO order_items (order_id, product_id, quantity) VALUES %L RETURNING *",
-      ordersItemsData.map(({ order_id, product_id, quantity }) => [
-        order_id,
-        product_id,
-        quantity,
-      ])
+      ordersItemsData.map(({ order_id, product_id, quantity }) => {
+        if (!ordersMap[order_id]) {
+          throw new Error(
+            `Order ID '${order_id}' in order_items does not exist in orders.`
+          );
+        }
+        return [order_id, product_id, quantity];
+      })
     );
     await db.query(insertOrdersItemsQueryStr);
 
+    const preparedReviewsData = reviewsData.map(convertTimestampToDate);
     const insertReviewsQueryStr = format(
-      "INSERT INTO reviews (product_id, user_id, rating, review_text) VALUES %L RETURNING *",
-      reviewsData.map(({ product_id, user_id, rating, review_text }) => [
-        product_id,
-        user_id,
-        rating,
-        review_text,
-      ])
+      "INSERT INTO reviews (product_id, user_id, rating, review_text, created_at) VALUES %L RETURNING *",
+      preparedReviewsData.map(
+        ({ product_id, username, rating, review_text, created_at }) => {
+          const user_id = usersMap[username];
+          if (!user_id) {
+            throw new Error(
+              `User '${username}' not found for review. Ensure all reviews reference valid users.`
+            );
+          }
+          return [product_id, user_id, rating, review_text, created_at];
+        }
+      )
     );
     await db.query(insertReviewsQueryStr);
     await db.query("COMMIT");
