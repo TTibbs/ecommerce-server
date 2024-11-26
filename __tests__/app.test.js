@@ -61,7 +61,6 @@ describe("GET REQUESTS", () => {
       const response = await request(app).get("/api/products").expect(200);
       const { products } = response.body;
       expect(products.length).toBeGreaterThan(0);
-      console.log(products);
       products.forEach((product) => {
         expect(product).toHaveProperty("product_id", expect.any(Number));
         expect(product).toHaveProperty("product_name", expect.any(String));
