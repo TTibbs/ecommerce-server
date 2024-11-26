@@ -10,9 +10,9 @@ const {
 } = require("../controllers/products-controllers");
 
 productsRouter.get("/", getProducts);
-productsRouter.post("/", postProduct);
 productsRouter.get("/:product_id", getProductById);
 productsRouter.get("/:product_id/reviews", getProductReviewsById);
+productsRouter.post("/", postProduct);
 productsRouter.post("/:product_id/reviews", postProductReviewById);
 productsRouter.patch("/:product_id", patchProductById);
 productsRouter.delete("/:product_id", deleteProductById);
