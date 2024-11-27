@@ -1,9 +1,10 @@
 exports.inputErrorHandler = (req, res, next) => {
   res.status(404).send({ msg: "Invalid input" });
+  next(err);
 };
 
 exports.psqlErrorHandler = (err, req, res, next) => {
-  if (["23502", "22P02", "23503"].includes(err.code)) {
+  if (err.code === "23502" || err.code === "22P02" || err.code === "23503") {
     res.status(400).send({ msg: "Bad request" });
   } else next(err);
 };
@@ -15,6 +16,6 @@ exports.customErrorHandler = (err, req, res, next) => {
 };
 
 exports.serverErrorHandler = (err, req, res, next) => {
-  console.error("Unhandled error:", err.stack);
+  console.log(err, "<<<<<< ------ Unhandled error");
   res.status(500).send({ msg: "Internal server error" });
 };
