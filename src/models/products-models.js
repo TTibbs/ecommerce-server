@@ -1,48 +1,7 @@
 const db = require("../../db/connection.js");
 
-exports.selectProducts = ({
-  limit = 10,
-  page = 1,
-  sort_by = "product_id",
-  order = "asc",
-  category,
-}) => {
-  const validSortColumns = [
-    "product_id",
-    "product_name",
-    "price",
-    "stock",
-    "category",
-  ];
-  const validOrders = ["asc", "desc"];
-
-  if (!validSortColumns.includes(sort_by)) {
-    return Promise.reject({ status: 400, msg: "Invalid sort_by column" });
-  }
-
-  if (!validOrders.includes(order)) {
-    return Promise.reject({ status: 400, msg: "Invalid order" });
-  }
-
-  const offset = (page - 1) * limit;
-
-  const queryParams = [limit, offset];
-  let query = `
-    SELECT *
-    FROM products
-  `;
-
-  if (category) {
-    query += ` WHERE category = $3`;
-    queryParams.push(category);
-  }
-
-  query += `
-    ORDER BY ${sort_by} ${order}
-    LIMIT $1 OFFSET $2;
-  `;
-
-  return db.query(query, queryParams).then(({ rows }) => {
+exports.selectProducts = () => {
+  return db.query(`SELECT * FROM products;`).then(({ rows }) => {
     const products = rows;
     products.forEach((product) => (product.price = parseFloat(product.price)));
     return products;

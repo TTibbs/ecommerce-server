@@ -10,17 +10,7 @@ const {
 } = require("../models/products-models");
 
 exports.getProducts = (req, res, next) => {
-  const { limit, page, sort_by, order, category } = req.query;
-
-  const queryOptions = {
-    limit: parseInt(limit, 10) || 10,
-    page: parseInt(page, 10) || 1,
-    sort_by: sort_by || "product_id",
-    order: order || "asc",
-    category: category ? parseInt(category, 10) : undefined,
-  };
-
-  selectProducts(queryOptions)
+  selectProducts()
     .then((products) => {
       res.status(200).send({ products });
     })
