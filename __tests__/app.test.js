@@ -616,80 +616,80 @@ describe("DELETE REQUESTS", () => {
   });
 });
 
-// describe("PAGINATION / FILTERING / SORTING", () => {
-//   describe("PAGINATION", () => {
-//     test("Should return a limited number of products per page", async () => {
-//       const response = await request(app)
-//         .get("/api/products?limit=5&page=2")
-//         .expect(200);
-//       const { products } = response.body;
-//       expect(products).toBeInstanceOf(Array);
-//       expect(products).toHaveLength(5);
-//       expect(products[0]).toHaveProperty("product_id", 6);
-//     });
-//     test("Should return a limited number of products per page", async () => {
-//       const response = await request(app)
-//         .get("/api/products?page=500")
-//         .expect(200);
-//       const { products } = response.body;
-//       expect(products).toBeInstanceOf(Array);
-//       expect(products).toHaveLength(0);
-//     });
-//   });
-//   describe("SORTING", () => {
-//     test("Should return products sorted by price in ascending order", async () => {
-//       const response = await request(app)
-//         .get("/api/products?sort_by=price&order=asc")
-//         .expect(200);
-//       const { products } = response.body;
-//       expect(products).toBeInstanceOf(Array);
-//       expect(products).toBeSortedBy("price", {
-//         ascending: true,
-//       });
-//     });
-//     test("Should return products sorted by stock in descending order", async () => {
-//       const response = await request(app)
-//         .get("/api/products?sort_by=stock&order=desc")
-//         .expect(200);
-//       const { products } = response.body;
-//       expect(products).toBeInstanceOf(Array);
-//       expect(products).toBeSortedBy("stock", {
-//         descending: true,
-//       });
-//     });
-//     test("Should return 400 for invalid sort_by column", async () => {
-//       const response = await request(app)
-//         .get("/api/products?sort_by=invalid_column")
-//         .expect(400);
-//       const { msg } = response.body;
-//       expect(msg).toBe("Invalid sort_by column");
-//     });
-//     test("Should return 400 for invalid order value", async () => {
-//       const response = await request(app)
-//         .get("/api/products?order=invalid_order")
-//         .expect(400);
-//       const { msg } = response.body;
-//       expect(msg).toBe("Invalid order");
-//     });
-//   });
-//   describe("FILTERING", () => {
-//     test("Should return products filtered by category", async () => {
-//       const response = await request(app)
-//         .get("/api/products?category=1")
-//         .expect(200);
-//       const { products } = response.body;
-//       expect(products).toBeInstanceOf(Array);
-//       products.forEach((product) => {
-//         expect(product.category).toBe(1);
-//       });
-//     });
-//     test("Should return an empty array if no products match the category", async () => {
-//       const response = await request(app)
-//         .get("/api/products?category=9999")
-//         .expect(200);
-//       const { products } = response.body;
-//       expect(products).toBeInstanceOf(Array);
-//       expect(products).toHaveLength(0);
-//     });
-//   });
-// });
+describe("PAGINATION / FILTERING / SORTING", () => {
+  describe("PAGINATION", () => {
+    test("Should return a limited number of products per page", async () => {
+      const response = await request(app)
+        .get("/api/products?limit=5&page=2")
+        .expect(200);
+      const { products } = response.body;
+      expect(products).toBeInstanceOf(Array);
+      expect(products).toHaveLength(5);
+      expect(products[0]).toHaveProperty("product_id", 6);
+    });
+    test("Should return a limited number of products per page", async () => {
+      const response = await request(app)
+        .get("/api/products?page=500")
+        .expect(200);
+      const { products } = response.body;
+      expect(products).toBeInstanceOf(Array);
+      expect(products).toHaveLength(0);
+    });
+  });
+  describe("SORTING", () => {
+    test("Should return products sorted by price in ascending order", async () => {
+      const response = await request(app)
+        .get("/api/products?sort_by=price&order=asc")
+        .expect(200);
+      const { products } = response.body;
+      expect(products).toBeInstanceOf(Array);
+      expect(products).toBeSortedBy("price", {
+        ascending: true,
+      });
+    });
+    test("Should return products sorted by stock in descending order", async () => {
+      const response = await request(app)
+        .get("/api/products?sort_by=stock&order=desc")
+        .expect(200);
+      const { products } = response.body;
+      expect(products).toBeInstanceOf(Array);
+      expect(products).toBeSortedBy("stock", {
+        descending: true,
+      });
+    });
+    test("Should return 400 for invalid sort_by column", async () => {
+      const response = await request(app)
+        .get("/api/products?sort_by=invalid_column")
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Invalid sort_by column");
+    });
+    test("Should return 400 for invalid order value", async () => {
+      const response = await request(app)
+        .get("/api/products?order=invalid_order")
+        .expect(400);
+      const { msg } = response.body;
+      expect(msg).toBe("Invalid order");
+    });
+  });
+  describe("FILTERING", () => {
+    test("Should return products filtered by category", async () => {
+      const response = await request(app)
+        .get("/api/products?category=1")
+        .expect(200);
+      const { products } = response.body;
+      expect(products).toBeInstanceOf(Array);
+      products.forEach((product) => {
+        expect(product.category).toBe(1);
+      });
+    });
+    test("Should return an empty array if no products match the category", async () => {
+      const response = await request(app)
+        .get("/api/products?category=9999")
+        .expect(200);
+      const { products } = response.body;
+      expect(products).toBeInstanceOf(Array);
+      expect(products).toHaveLength(0);
+    });
+  });
+});

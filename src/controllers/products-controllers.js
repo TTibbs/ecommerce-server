@@ -10,7 +10,15 @@ const {
 } = require("../models/products-models");
 
 exports.getProducts = (req, res, next) => {
-  selectProducts()
+  const {
+    limit = 10,
+    page = 1,
+    sort_by = "product_id",
+    order = "asc",
+    category,
+  } = req.query;
+
+  selectProducts(limit, page, sort_by, order, category)
     .then((products) => {
       res.status(200).send({ products });
     })
