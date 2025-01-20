@@ -43,7 +43,13 @@ exports.selectProductById = (product_id) => {
       }
       const product = rows[0];
       product.price = parseFloat(product.price);
-      return product;
+
+      return db
+        .query(`SELECT * FROM reviews WHERE product_id = $1`, [product_id])
+        .then(({ rows: reviews }) => {
+          product.product_reviews = reviews;
+          return product;
+        });
     });
 };
 

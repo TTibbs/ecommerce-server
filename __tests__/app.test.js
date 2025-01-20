@@ -81,6 +81,15 @@ describe("GET REQUESTS", () => {
         expect(product).toHaveProperty("description", expect.any(String));
         expect(product).toHaveProperty("stock", expect.any(Number));
         expect(product).toHaveProperty("category", expect.any(Number));
+        expect(product).toHaveProperty("product_reviews", expect.any(Array));
+        product.product_reviews.forEach((review) => {
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("product_id", expect.any(Number));
+          expect(review).toHaveProperty("user_id", expect.any(Number));
+          expect(review).toHaveProperty("rating", expect.any(Number));
+          expect(review).toHaveProperty("review_text", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+        });
       });
       describe("GET 400 & 404", () => {
         test("Should return a 400 status and error message if the product ID is invalid", async () => {
